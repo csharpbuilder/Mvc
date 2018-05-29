@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(DeveloperBuild)' != 'true' AND '$(OS)' == 'Windows_NT' ">$(TargetFrameworks);net461</TargetFrameworks>
+    <TargetFrameworks Condition="'$(BenchmarksTargetFramework)' != ''">$(BenchmarksTargetFramework)</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(MicrosoftAspNetCoreAuthenticationJwtBearerPackageVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="$(MicrosoftAspNetCoreServerKestrelPackageVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(MicrosoftEntityFrameworkCoreSqlitePackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="$(MicrosoftExtensionsConfigurationCommandLinePackageVersion)" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEntityFrameworkCorePostgreSQLPackageVersion)" />
+  </ItemGroup>
+
+  <!-- These references are used when running locally -->
+  <ItemGroup Condition="'$(BenchmarksTargetFramework)' == ''">
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.Mvc.Core\Microsoft.AspNetCore.Mvc.Core.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.Mvc.DataAnnotations\Microsoft.AspNetCore.Mvc.DataAnnotations.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.Mvc.Formatters.Json\Microsoft.AspNetCore.Mvc.Formatters.Json.csproj" />
+  </ItemGroup>
+
+  <!-- These references are used when running on the Benchmarks Server -->
+  <ItemGroup Condition="'$(BenchmarksTargetFramework)' != ''">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="$(MicrosoftAspNetCoreMvcCorePackageVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.DataAnnotations" Version="$(MicrosoftAspNetCoreMvcDataAnnotationsPackageVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Formatters.Json" Version="$(MicrosoftAspNetCoreMvcFormattersJsonPackageVersion)" />
+  </ItemGroup>
+</Project>
