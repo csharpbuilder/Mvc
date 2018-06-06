@@ -149,7 +149,9 @@ namespace BasicApi
             {
                 using (var dbContext = services.GetRequiredService<BasicApiContext>())
                 {
-                    // Contrary to general documentation, creates and seeds tables even if PostgreSQL database exists.
+                    var script = dbContext.Database.GenerateCreateScript();
+                    Console.WriteLine($"Create script: '{script}'");
+
                     dbContext.Database.EnsureCreated();
                 }
             }

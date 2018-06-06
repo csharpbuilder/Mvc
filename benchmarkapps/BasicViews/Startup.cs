@@ -107,7 +107,6 @@ namespace BasicViews
             {
                 using (var dbContext = services.GetRequiredService<BasicViewsContext>())
                 {
-                    // Contrary to general documentation, creates and seeds tables even if PostgreSQL database exists.
                     dbContext.Database.EnsureCreated();
                 }
             }
