@@ -55,6 +55,7 @@
     <MicrosoftCodeAnalysisRazorPackageVersion>2.2.0-preview1-34411</MicrosoftCodeAnalysisRazorPackageVersion>
     <MicrosoftDiaSymReaderNativePackageVersion>1.7.0</MicrosoftDiaSymReaderNativePackageVersion>
     <MicrosoftEntityFrameworkCoreSqlitePackageVersion>2.2.0-preview1-34411</MicrosoftEntityFrameworkCoreSqlitePackageVersion>
+    <MicrosoftEntityFrameworkCoreSqlServerPackageVersion>2.2.0-preview1-34411</MicrosoftEntityFrameworkCoreSqlServerPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34411</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsClosedGenericMatcherSourcesPackageVersion>2.2.0-preview1-34411</MicrosoftExtensionsClosedGenericMatcherSourcesPackageVersion>
     <MicrosoftExtensionsConfigurationCommandLinePackageVersion>2.2.0-preview1-34411</MicrosoftExtensionsConfigurationCommandLinePackageVersion>
@@ -92,6 +93,7 @@
     <MicrosoftNETSdkRazorPackageVersion>2.2.0-preview1-34411</MicrosoftNETSdkRazorPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
     <MoqPackageVersion>4.7.49</MoqPackageVersion>
+    <MySqlConnectorVersion>0.40.4</MySqlConnectorVersion>
     <NETStandardLibrary20PackageVersion>2.0.3</NETStandardLibrary20PackageVersion>
     <NewtonsoftJsonBsonPackageVersion>1.0.1</NewtonsoftJsonBsonPackageVersion>
     <NpgsqlEntityFrameworkCorePostgreSQLPackageVersion>2.1.0</NpgsqlEntityFrameworkCorePostgreSQLPackageVersion>

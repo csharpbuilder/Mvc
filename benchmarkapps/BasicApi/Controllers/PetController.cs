@@ -38,6 +38,19 @@ namespace BasicApi.Controllers
             return pet == null ? new NotFoundResult() : (IActionResult)new ObjectResult(pet);
         }
 
+        [AllowAnonymous]
+        [HttpGet("anonymous/{id}")]
+        public async Task<IActionResult> FindByIdWithoutToken(int id)
+        {
+            var pet = await DbContext.Pets
+                .Include(p => p.Category)
+                .Include(p => p.Images)
+                .Include(p => p.Tags)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            return pet == null ? new NotFoundResult() : (IActionResult)new ObjectResult(pet);
+        }
+
         [HttpGet("findByCategory/{categoryId}")]
         public async Task<IActionResult> FindByCategory(int categoryId)
         {

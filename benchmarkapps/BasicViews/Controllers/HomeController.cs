@@ -35,6 +35,25 @@ namespace BasicViews.Controllers
         }
 
         [HttpGet]
+        public IActionResult IndexWithoutToken()
+        {
+            return View(viewName: nameof(Index));
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> IndexWithoutToken(Person person)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(person);
+                await _context.SaveChangesAsync();
+            }
+
+            return View(viewName: nameof(Index), model: person);
+        }
+
+        [HttpGet]
         public IActionResult HtmlHelpers()
         {
             return View();

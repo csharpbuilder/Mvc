@@ -24,10 +24,17 @@ namespace BasicViews
 
         public void ConfigureServices(IServiceCollection services)
         {
-            switch (Configuration["Database"])
+            // Provide a connection string that is unique to this application.
+            var connectionString = Regex.Replace(
+                input: Configuration["ConnectionString"] ?? string.Empty,
+                pattern: "(Database=)[^;]*;",
+                replacement: "$1BasicViews;");
+
+            var databaseType = Configuration["Database"];
+            switch (databaseType)
             {
                 case "None":
-                    // No database needed
+                    // No database needed e.g. only testing GET actions.
                     break;
 
                 case var database when string.IsNullOrEmpty(database):
@@ -38,17 +45,11 @@ namespace BasicViews
                     break;
 
                 case "PostgreSql":
-                    var connectionString = Configuration["ConnectionString"];
                     if (string.IsNullOrEmpty(connectionString))
                     {
-                        throw new ArgumentException("Connection string must be specified for Npgsql.");
+                        throw new ArgumentException("Connection string must be specified for {databaseType}.");
                     }
 
-                    // Make connection string unique to this application
-                    connectionString = Regex.Replace(
-                        input: connectionString,
-                        pattern: "(Database=)[^;]*;",
-                        replacement: "$1BasicViews;");
                     var settings = new NpgsqlConnectionStringBuilder(connectionString);
                     if (!settings.NoResetOnClose)
                     {
@@ -64,9 +65,20 @@ namespace BasicViews
                         .AddDbContextPool<BasicViewsContext>(options => options.UseNpgsql(connectionString));
                     break;
 
+                case "SqlServer":
+                    if (string.IsNullOrEmpty(connectionString))
+                    {
+                        throw new ArgumentException("Connection string must be specified for {databaseType}.");
+                    }
+
+                    services
+                        .AddEntityFrameworkSqlServer()
+                        .AddDbContextPool<BasicViewsContext>(options => options.UseSqlServer(connectionString));
+                    break;
+
                 default:
                     throw new ArgumentException(
-                        $"Application does not support database type {Configuration["Database"]}.");
+                        $"Application does not support database type {databaseType}.");
             }
 
             services.AddMvc();
@@ -74,14 +86,11 @@ namespace BasicViews
 
         public void Configure(IApplicationBuilder app, IApplicationLifetime lifetime)
         {
-            var services = app.ApplicationServices;
-            switch (Configuration["Database"])
+            if (!string.Equals("None", Configuration["Database"], StringComparison.Ordinal))
             {
-                case var database when string.IsNullOrEmpty(database):
-                case "PostgreSql":
-                    CreateDatabase(services);
-                    lifetime.ApplicationStopping.Register(() => DropDatabase(services));
-                    break;
+                var services = app.ApplicationServices;
+                CreateDatabase(services);
+                lifetime.ApplicationStopping.Register(() => DropDatabase(services));
             }
 
             app.Use(next => async context =>

@@ -43,10 +43,17 @@ namespace BasicApi
                 options.TokenValidationParameters.ValidIssuer = "BasicApi";
             });
 
-            switch (Configuration["Database"])
+            // Provide a connection string that is unique to this application.
+            var connectionString = Regex.Replace(
+                input: Configuration["ConnectionString"] ?? string.Empty,
+                pattern: "(Database=)[^;]*;",
+                replacement: "$1BasicApi;");
+
+            var databaseType = Configuration["Database"];
+            switch (databaseType)
             {
                 case "None":
-                    // No database needed
+                    // No database needed e.g. only testing TokenController.GetToken(...) action.
                     break;
 
                 case var database when string.IsNullOrEmpty(database):
@@ -57,17 +64,11 @@ namespace BasicApi
                     break;
 
                 case "PostgreSql":
-                    var connectionString = Configuration["ConnectionString"];
                     if (string.IsNullOrEmpty(connectionString))
                     {
-                        throw new ArgumentException("Connection string must be specified for Npgsql.");
+                        throw new ArgumentException("Connection string must be specified for {databaseType}.");
                     }
 
-                    // Make connection string unique to this application
-                    connectionString = Regex.Replace(
-                        input: connectionString,
-                        pattern: "(Database=)[^;]*;",
-                        replacement: "$1BasicApi;");
                     var settings = new NpgsqlConnectionStringBuilder(connectionString);
                     if (!settings.NoResetOnClose)
                     {
@@ -83,9 +84,20 @@ namespace BasicApi
                         .AddDbContextPool<BasicApiContext>(options => options.UseNpgsql(connectionString));
                     break;
 
+                case "SqlServer":
+                    if (string.IsNullOrEmpty(connectionString))
+                    {
+                        throw new ArgumentException("Connection string must be specified for {databaseType}.");
+                    }
+
+                    services
+                        .AddEntityFrameworkSqlServer()
+                        .AddDbContextPool<BasicApiContext>(options => options.UseSqlServer(connectionString));
+                    break;
+
                 default:
                     throw new ArgumentException(
-                        $"Application does not support database type {Configuration["Database"]}.");
+                        $"Application does not support database type {databaseType}.");
             }
 
             services.AddAuthorization(options =>
@@ -116,14 +128,11 @@ namespace BasicApi
 
         public void Configure(IApplicationBuilder app, IApplicationLifetime lifetime)
         {
-            var services = app.ApplicationServices;
-            switch (Configuration["Database"])
+            if (!string.Equals("None", Configuration["Database"], StringComparison.Ordinal))
             {
-                case var database when string.IsNullOrEmpty(database):
-                case "PostgreSql":
-                    CreateDatabase(services);
-                    lifetime.ApplicationStopping.Register(() => DropDatabase(services));
-                    break;
+                var services = app.ApplicationServices;
+                CreateDatabase(services);
+                lifetime.ApplicationStopping.Register(() => DropDatabase(services));
             }
 
             app.Use(next => async context =>
@@ -143,14 +152,17 @@ namespace BasicApi
             app.UseMvc();
         }
 
-        private static void CreateDatabase(IServiceProvider services)
+        private void CreateDatabase(IServiceProvider services)
         {
             using (var serviceScope = services.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 using (var dbContext = services.GetRequiredService<BasicApiContext>())
                 {
-                    var script = dbContext.Database.GenerateCreateScript();
-                    Console.WriteLine($"Create script: '{script}'");
+                    if (string.Equals("PostgreSql", Configuration["Database"], StringComparison.Ordinal))
+                    {
+                        var script = dbContext.Database.GenerateCreateScript();
+                        Console.WriteLine($"Create script: '{script}'");
+                    }
 
                     dbContext.Database.EnsureCreated();
                 }
