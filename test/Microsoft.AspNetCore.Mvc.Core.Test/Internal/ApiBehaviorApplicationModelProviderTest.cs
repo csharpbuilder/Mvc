@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace Microsoft.AspNetCore.Mvc.Internal
@@ -873,6 +874,46 @@ Environment.NewLine + "int b";
             Assert.Equal("multipart/form-data", Assert.Single(consumesAttribute.ContentTypes));
         }
 
+        [Fact]
+        public void ApiConventionAttributeIsNotAdded_IfModelAlreadyHasAttribute()
+        {
+            // Arrange
+            var attribute = new ApiConventionAttribute(typeof(DefaultApiConventions));
+            var assembly = new TestAssembly();
+            var controller = Mock.Of<TypeInfo>(t => t.Assembly == new TestAssembly());
+
+            var model = new ControllerModel(controller, new[] { attribute })
+            {
+                Filters = { attribute, },
+            };
+
+            // Act
+            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConvention(model);
+
+            // Assert
+            Assert.Collection(
+                model.Filters,
+                filter => Assert.Same(attribute, filter));
+        }
+
+        [Fact]
+        public void ApiConventionAttributeIsAdded_IfAttributeExistsInAssembly()
+        {
+            // Arrange
+            var attribute = new ApiConventionAttribute(typeof(DefaultApiConventions));
+            var controller = Mock.Of<TypeInfo>(t => t.Assembly == new TestAssembly());
+
+            var model = new ControllerModel(controller, Array.Empty<object>());
+
+            // Act
+            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConvention(model);
+
+            // Assert
+            Assert.Collection(
+                model.Filters,
+                filter => Assert.Same(attribute, filter));
+        }
+
         private static ApiBehaviorApplicationModelProvider GetProvider(
             ApiBehaviorOptions options = null,
             IModelMetadataProvider modelMetadataProvider = null)
@@ -951,6 +992,14 @@ Environment.NewLine + "int b";
         [AttributeUsage(AttributeTargets.Method)]
         private class TestApiBehavior : Attribute, IApiBehaviorMetadata
         {
+        }
+
+        private class TestAssembly : Assembly
+        {
+            public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+            {
+                return new[] { new ApiConventionAttribute(typeof(DefaultApiConventions)) };
+            }
         }
 
         [ApiController]
