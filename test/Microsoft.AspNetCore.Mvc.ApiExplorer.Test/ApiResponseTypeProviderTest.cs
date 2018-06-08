@@ -374,6 +374,127 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
         }
 
         [Fact]
+        public void GetApiResponseTypes_ReturnsResponseTypesFromCustomConventions()
+        {
+            // Arrange
+            var actionDescriptor = GetControllerActionDescriptor(
+                typeof(GetApiResponseTypes_ReturnsResponseTypesFromCustomConventionsController),
+                nameof(GetApiResponseTypes_ReturnsResponseTypesFromCustomConventionsController.SearchModel));
+            var filter = new FilterDescriptor(new ApiConventionAttribute(typeof(SearchApiConventions)), FilterScope.Controller);
+            actionDescriptor.FilterDescriptors.Add(filter);
+
+            var provider = GetProvider();
+
+            // Act
+            var result = provider.GetApiResponseTypes(actionDescriptor);
+
+            // Assert
+            Assert.Collection(
+               result.OrderBy(r => r.StatusCode),
+               responseType =>
+               {
+                   Assert.Equal(206, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               },
+               responseType =>
+               {
+                   Assert.Equal(406, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               });
+        }
+
+        [ApiConvention(typeof(SearchApiConventions))]
+        public class GetApiResponseTypes_ReturnsResponseTypesFromCustomConventionsController : ControllerBase
+        {
+            public Task<ActionResult<BaseModel>> SearchModel(string searchTerm, int page) => null;
+        }
+
+        [Fact]
+        public void GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConvention_WhenMultipleConventionsArePresent()
+        {
+            // Arrange
+            var actionDescriptor = GetControllerActionDescriptor(
+                typeof(GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConventionController),
+                nameof(GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConventionController.SearchModel));
+            var filter = new FilterDescriptor(new ApiConventionAttribute(typeof(DefaultApiConventions)), FilterScope.Controller);
+            actionDescriptor.FilterDescriptors.Add(filter);
+            filter = new FilterDescriptor(new ApiConventionAttribute(typeof(SearchApiConventions)), FilterScope.Controller);
+            actionDescriptor.FilterDescriptors.Add(filter);
+
+            var provider = GetProvider();
+
+            // Act
+            var result = provider.GetApiResponseTypes(actionDescriptor);
+
+            // Assert
+            Assert.Collection(
+               result.OrderBy(r => r.StatusCode),
+               responseType =>
+               {
+                   Assert.Equal(206, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               },
+               responseType =>
+               {
+                   Assert.Equal(406, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               });
+        }
+
+        [ApiConvention(typeof(DefaultApiConventions))]
+        [ApiConvention(typeof(SearchApiConventions))]
+        public class GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConventionController : ControllerBase
+        {
+            public Task<ActionResult<BaseModel>> Get(int id) => null;
+
+            public Task<ActionResult<BaseModel>> SearchModel(string searchTerm, int page) => null;
+        }
+
+        [Fact]
+        public void GetApiResponseTypes_ReturnsResponseTypesFromDefaultConvention_WhenMultipleConventionsArePresent()
+        {
+            // Arrange
+            var actionDescriptor = GetControllerActionDescriptor(
+                typeof(GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConventionController),
+                nameof(GetApiResponseTypes_ReturnsResponseTypesFromFirstMatchingConventionController.Get));
+            var filter = new FilterDescriptor(new ApiConventionAttribute(typeof(DefaultApiConventions)), FilterScope.Controller);
+            actionDescriptor.FilterDescriptors.Add(filter);
+            filter = new FilterDescriptor(new ApiConventionAttribute(typeof(SearchApiConventions)), FilterScope.Controller);
+            actionDescriptor.FilterDescriptors.Add(filter);
+
+            var provider = GetProvider();
+
+            // Act
+            var result = provider.GetApiResponseTypes(actionDescriptor);
+
+            // Assert
+            Assert.Collection(
+               result.OrderBy(r => r.StatusCode),
+               responseType =>
+               {
+                   Assert.Equal(200, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               },
+               responseType =>
+               {
+                   Assert.Equal(404, responseType.StatusCode);
+                   Assert.Equal(typeof(void), responseType.Type);
+                   Assert.False(responseType.IsDefaultResponse);
+                   Assert.Empty(responseType.ApiResponseFormats);
+               });
+        }
+
+        [Fact]
         public void GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatch()
         {
             // Arrange
@@ -456,6 +577,13 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             }
 
             public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) => Task.CompletedTask;
+        }
+
+        public static class SearchApiConventions
+        {
+            [ProducesResponseType(206)]
+            [ProducesResponseType(406)]
+            public static void Search(object searchTerm, int page) { }
         }
     }
 }

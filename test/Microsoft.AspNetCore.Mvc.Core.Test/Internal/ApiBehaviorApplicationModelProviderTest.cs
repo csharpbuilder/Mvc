@@ -888,7 +888,7 @@ Environment.NewLine + "int b";
             };
 
             // Act
-            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConvention(model);
+            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConventions(model);
 
             // Assert
             Assert.Collection(
@@ -906,7 +906,7 @@ Environment.NewLine + "int b";
             var model = new ControllerModel(controller, Array.Empty<object>());
 
             // Act
-            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConvention(model);
+            ApiBehaviorApplicationModelProvider.AddGloballyConfiguredApiConventions(model);
 
             // Assert
             Assert.Collection(

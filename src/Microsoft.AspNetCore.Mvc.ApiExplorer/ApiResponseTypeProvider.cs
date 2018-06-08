@@ -51,21 +51,32 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 
         private IApiResponseMetadataProvider[] GetResponseMetadataAttributesFromConventions(ControllerActionDescriptor action)
         {
-            var filter = (ApiConventionAttribute)action.FilterDescriptors?.FirstOrDefault(f => f.Filter is ApiConventionAttribute)?.Filter;
-            if (filter == null)
+            if (action.FilterDescriptors == null)
             {
                 return Array.Empty<IApiResponseMetadataProvider>();
             }
 
-            var method = GetConventionMethod(action.MethodInfo, filter.ConventionType);
-            if (method == null)
+            var filterDescriptors = action.FilterDescriptors?.Where(f => f.Filter is ApiConventionAttribute).ToArray();
+            if (filterDescriptors.Length == 0)
             {
                 return Array.Empty<IApiResponseMetadataProvider>();
             }
 
-            return method.GetCustomAttributes(inherit: false)
-                .OfType<IApiResponseMetadataProvider>()
-                .ToArray();
+            foreach (var filterDescriptor in filterDescriptors)
+            {
+                var apiConventionAttribute = (ApiConventionAttribute)filterDescriptor.Filter;
+                var method = GetConventionMethod(action.MethodInfo, apiConventionAttribute.ConventionType);
+                if (method == null)
+                {
+                    continue;
+                }
+
+                return method.GetCustomAttributes(inherit: false)
+                    .OfType<IApiResponseMetadataProvider>()
+                    .ToArray();
+            }
+
+            return Array.Empty<IApiResponseMetadataProvider>();
         }
 
         private MethodInfo GetConventionMethod(MethodInfo methodInfo, Type conventions)

@@ -69,7 +69,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                 {
                     InferBoundPropertyModelPrefixes(controllerModel);
 
-                    AddGloballyConfiguredApiConvention(controllerModel);
+                    AddGloballyConfiguredApiConventions(controllerModel);
                 }
 
                 var controllerHasSelectorModel = controllerModel.Selectors.Any(s => s.AttributeRouteModel != null);
@@ -94,7 +94,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             }
         }
 
-        internal static void AddGloballyConfiguredApiConvention(ControllerModel controllerModel)
+        internal static void AddGloballyConfiguredApiConventions(ControllerModel controllerModel)
         {
             if (controllerModel.Filters.OfType<ApiConventionAttribute>().Any())
             {
