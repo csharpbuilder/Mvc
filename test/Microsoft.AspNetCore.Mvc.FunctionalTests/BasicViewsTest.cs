@@ -6,21 +6,15 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Xunit;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 {
-    public class BasicViewsTest : IClassFixture<MvcTestFixture<BasicViews.Startup>>
+    public class BasicViewsTest : IClassFixture<BasicViewsFixture>
     {
-        public BasicViewsTest(MvcTestFixture<BasicViews.Startup> fixture)
+        public BasicViewsTest(BasicViewsFixture fixture)
         {
-            // In Production (the MvcTestFixture default), site uses asp-fallback-* attributes. The generated HTML then
-            // includes <script> elements containing non-HTML-encoded JavaScript e.g. a && b. XDocument doesn't know
-            // <script> elements are implicitly CDATA content, leading to an XmlExcetion in AntiforgeryTestHelper.
-            var innnerFixture = fixture.WithWebHostBuilder(builder => builder.UseEnvironment("Development"));
-
-            Client = innnerFixture.CreateClient();
+            Client = fixture.CreateClient();
         }
 
         public HttpClient Client { get; }

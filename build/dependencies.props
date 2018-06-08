@@ -54,6 +54,7 @@
     <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.8.0</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCodeAnalysisRazorPackageVersion>2.2.0-preview1-34411</MicrosoftCodeAnalysisRazorPackageVersion>
     <MicrosoftDiaSymReaderNativePackageVersion>1.7.0</MicrosoftDiaSymReaderNativePackageVersion>
+    <MicrosoftEntityFrameworkCoreDesignPackageVersion>2.2.0-preview1-34411</MicrosoftEntityFrameworkCoreDesignPackageVersion>
     <MicrosoftEntityFrameworkCoreSqlitePackageVersion>2.2.0-preview1-34411</MicrosoftEntityFrameworkCoreSqlitePackageVersion>
     <MicrosoftEntityFrameworkCoreSqlServerPackageVersion>2.2.0-preview1-34411</MicrosoftEntityFrameworkCoreSqlServerPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.2.0-preview1-34411</MicrosoftExtensionsCachingMemoryPackageVersion>

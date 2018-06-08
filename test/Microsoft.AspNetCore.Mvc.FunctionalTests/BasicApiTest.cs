@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 {
-    public class BasicApiTest : IClassFixture<MvcTestFixture<BasicApi.Startup>>
+    public class BasicApiTest : IClassFixture<BasicApiFixture>
     {
         private static readonly byte[] PetBytes = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
             .GetBytes(@"{
@@ -39,7 +39,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
   ""status"" : ""available""
 }");
 
-        public BasicApiTest(MvcTestFixture<BasicApi.Startup> fixture)
+        public BasicApiTest(BasicApiFixture fixture)
         {
             Client = fixture.CreateClient();
         }
