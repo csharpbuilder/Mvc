@@ -30,6 +30,20 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             Assert.False(result);
         }
 
+        [Fact]
+        public void IsParameterNameMatch_ReturnsFalse_IfConventionNameIsNotExactCaseSensitiveMatch()
+        {
+            // Arrange
+            var parameterName = "Id";
+            var conventionName = "id";
+
+            // Act
+            var result = ApiResponseTypeProvider.IsParameterNameMatch(parameterName, conventionName);
+
+            // Assert
+            Assert.False(result);
+        }
+
         [Theory]
         [InlineData("rid", "id")]
         [InlineData("candid", "id")]
@@ -139,8 +153,8 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
         public void IsParameterTypeMatch_ReturnsTrue_IfTypeIsSubtypeOfConvention()
         {
             // Arrange
-            var type = typeof(Uri);
-            var conventionType = typeof(Uri);
+            var type = typeof(DerivedModel);
+            var conventionType = typeof(BaseModel);
 
             // Act
             var result = ApiResponseTypeProvider.IsParameterTypeMatch(type, conventionType);
@@ -204,6 +218,20 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             Assert.True(result);
         }
 
+        [Fact]
+        public void IsMethodNameMatch_ReturnsFalse_IfMethodNameIsExactMatchWithDifferentCasing()
+        {
+            // Arrange
+            var methodName = "post";
+            var conventionMethodName = "Post";
+
+            // Act
+            var result = ApiResponseTypeProvider.IsMethodNameMatch(methodName, conventionMethodName);
+
+            // Assert
+            Assert.False(result);
+        }
+
         [Theory]
         [InlineData("PostPerson", "Post")]
         [InlineData("GetById", "Get")]
@@ -215,6 +243,20 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 
             // Assert
             Assert.True(result);
+        }
+
+        [Fact]
+        public void IsMethodNameMatch_ReturnsFalse_IfMethodNameIsProperSuffix_WithDifferentCasing()
+        {
+            // Arrange
+            var methodName = "getById";
+            var conventionMethodName = "Get";
+
+            // Act
+            var result = ApiResponseTypeProvider.IsMethodNameMatch(methodName, conventionMethodName);
+
+            // Assert
+            Assert.False(result);
         }
 
         [Fact]
