@@ -43,6 +43,12 @@ namespace BasicViews
 
             switch (databaseType)
             {
+                case "MySql":
+                    services
+                        .AddEntityFrameworkMySql()
+                        .AddDbContext<BasicViewsContext>(options => options.UseMySql(connectionString));
+                    break;
+
                 case "PostgreSql":
                     var settings = new NpgsqlConnectionStringBuilder(connectionString);
                     if (!settings.NoResetOnClose)

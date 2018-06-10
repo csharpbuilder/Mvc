@@ -62,6 +62,12 @@ namespace BasicApi
 
             switch (databaseType)
             {
+                case "MySql":
+                    services
+                        .AddEntityFrameworkMySql()
+                        .AddDbContext<BasicApiContext>(options => options.UseMySql(connectionString));
+                    break;
+
                 case "PostgreSql":
                     var settings = new NpgsqlConnectionStringBuilder(connectionString);
                     if (!settings.NoResetOnClose)
